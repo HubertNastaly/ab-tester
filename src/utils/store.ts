@@ -96,6 +96,7 @@ export class Store {
   }
 
   public selectVariant(experimentName: string, variant: Variant) {
+    // TODO: change for _getExperiment
     const experimentIndex = this._findExperimentIndex(experimentName)
 
     this._store.experiments[experimentIndex].selectedVariant = variant

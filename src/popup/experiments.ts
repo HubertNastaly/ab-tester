@@ -1,11 +1,12 @@
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
+import { attemptUrlVariantUpdate } from "../utils/attemptUrlUpdate";
 import { EventName } from "../utils/events";
 import { observer } from "../utils/observer";
 import { PORT_IDS } from "../utils/portIds";
 import { parseSavedExperiments, readSavedExperiments } from "../utils/savedExperiments";
 import { store } from "../utils/store";
-import { getCurrentUrlVariantId, updateUrl } from "../utils/url";
-import { clearVariantQuery, withVariantQuery } from "../utils/withVariantQuery";
+import { updateUrl } from "../utils/url";
+import { clearVariantQuery } from "../utils/withVariantQuery";
 import { ExperimentElement } from "./experiment";
 
 export class Experiments extends ExtendedHtmlElement {
@@ -61,10 +62,7 @@ export class Experiments extends ExtendedHtmlElement {
       const newExperimentElement = this._getExperimentElement(newExperiment.name)
       newExperimentElement.setAttribute('active', 'true')
 
-      const currentUrlVariantId = await getCurrentUrlVariantId()
-      if(selectedVariant.id !== currentUrlVariantId) {
-        updateUrl((currentUrl) => withVariantQuery(currentUrl, selectedVariant.id))
-      }
+      attemptUrlVariantUpdate(selectedVariant)
     })
   }
 

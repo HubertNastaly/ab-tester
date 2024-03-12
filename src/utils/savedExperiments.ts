@@ -1,12 +1,13 @@
-// saved experiments schema: $active=EX-NAME;EX-NAME-1:VARIANT-B_VARIANT-B-ID,VARIANT-C_VARIANT-C-ID;EX-NAME-2:...
+// saved experiments schema: $active=EX-NAME_VARIANT-ID;EX-NAME-1:VARIANT-B_VARIANT-B-ID,VARIANT-C_VARIANT-C-ID;EX-NAME-2:...
 
-import { SAVED_EXPERIMENTS_KEY } from "../constants";
-import { Experiment, Variant } from "../types";
+import { SAVED_EXPERIMENTS_KEY } from '../constants';
+import { Experiment, Variant } from '../types';
 
-const EXPERIMENTS_SEPARATOR = ";";
-const EXPERIMENTS_VARIANTS_SEPARATOR = ":";
-const VARIANTS_SEPARATOR = ",";
-const VARIANT_NAME_ID_SEPARATOR = "_";
+const EXPERIMENTS_SEPARATOR = ';';
+const EXPERIMENTS_VARIANTS_SEPARATOR = ':';
+const VARIANTS_SEPARATOR = ',';
+const VARIANT_NAME_ID_SEPARATOR = '_';
+const EXPERIMENT_VARIANT_ID_SEPARATOR = '_'
 const ACTIVE_VARIANT_PREFIX = '$active='
 
 export async function readSavedExperiments() {
@@ -20,10 +21,9 @@ export async function saveExperiments(
   activeExperiment?: Experiment
 ) {
   const stringifiedExperiments = stringifyExperiments(experiments);
-  const allStringified = activeExperiment
-    ? [stringifyActiveExperiment(activeExperiment.name), stringifiedExperiments].join(
-        EXPERIMENTS_SEPARATOR
-      )
+  const stringifiedActiveExperiment = activeExperiment && activeExperiment.selectedVariant && stringifyActiveExperiment(activeExperiment.name, activeExperiment.selectedVariant.id)
+  const allStringified = stringifiedActiveExperiment
+    ? [stringifiedActiveExperiment, stringifiedExperiments].join(EXPERIMENTS_SEPARATOR)
     : stringifiedExperiments;
 
   await chrome.storage.local.set({ [SAVED_EXPERIMENTS_KEY]: allStringified });
@@ -45,13 +45,13 @@ export function parseSavedExperiments(savedExperiments: string): {
   const parts = savedExperiments.split(EXPERIMENTS_SEPARATOR);
   const hasActiveExperiment = parts[0].startsWith(ACTIVE_VARIANT_PREFIX)
   if (hasActiveExperiment) {
-    const activeExperimentName = parseActiveExperimentName(parts[0]);
+    const { experimentName, variantId } = parseActiveExperiment(parts[0]);
     const experiments = parts.slice(1).map(parseExperiment);
-    const activeExperiment = experiments.find(({ name }) => name === activeExperimentName)
+    const activeExperiment = experiments.find(({ name }) => name === experimentName)
     if(!activeExperiment) {
-      throw new Error(`Active experiment not found: ${activeExperimentName}`)
+      throw new Error(`Active experiment not found: ${experimentName}`)
     }
-    activeExperiment.selectedVariant = activeExperiment.variants[0]
+    activeExperiment.selectedVariant = activeExperiment.variants.find(({ id }) => id === variantId)
     return { experiments, activeExperiment };
   }
   return { experiments: parts.map(parseExperiment) };
@@ -76,8 +76,9 @@ function parseVariant(variant: string): Variant {
   return { name, id };
 }
 
-function parseActiveExperimentName(prefixedExperimentName: string): string {
-  return prefixedExperimentName.replace(ACTIVE_VARIANT_PREFIX, '')
+function parseActiveExperiment(prefixedExperimentName: string): { experimentName: string, variantId: string } {
+  const [experimentName, variantId] = prefixedExperimentName.replace(ACTIVE_VARIANT_PREFIX, '').split(EXPERIMENT_VARIANT_ID_SEPARATOR)
+  return { experimentName, variantId }
 }
 
 function stringifyExperiments(experiments: Experiment[]): string {
@@ -94,6 +95,6 @@ function stringifyExperiments(experiments: Experiment[]): string {
     .join(EXPERIMENTS_SEPARATOR);
 }
 
-function stringifyActiveExperiment(experimentName: string): string {
-  return `${ACTIVE_VARIANT_PREFIX}${experimentName}`;
+function stringifyActiveExperiment(experimentName: string, variantId: string): string {
+  return `${ACTIVE_VARIANT_PREFIX}${experimentName}_${variantId}`;
 }

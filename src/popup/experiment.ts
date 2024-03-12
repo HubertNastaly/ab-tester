@@ -1,5 +1,6 @@
 import { Experiment, Variant } from "../types";
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
+import { attemptUrlVariantUpdate } from "../utils/attemptUrlUpdate";
 import { createSelectOption } from "../utils/createElement";
 import { EventName } from "../utils/events";
 import { observer } from "../utils/observer";
@@ -45,13 +46,25 @@ export class ExperimentElement extends ExtendedHtmlElement {
 
     variantSelect.addEventListener('change', () => {
       const newSelectedVariant = this.experiment.variants.find(({ id }) => id === variantSelect.value)
-      store.selectVariant(this.experiment.name, newSelectedVariant!)
+      if(!newSelectedVariant) {
+        throw new Error(`Missing selected variant: ${variantSelect.value}`)
+      }
+
+      store.selectVariant(this.experiment.name, newSelectedVariant)
+
+      if(this.isActive) {
+        attemptUrlVariantUpdate(newSelectedVariant)
+      }
     })
 
     this.experiment.variants.forEach(variant => {
       const option = this.createVariantOption(variant)
       variantSelect.appendChild(option)
     })
+
+    if(this.experiment.selectedVariant) {
+      variantSelect.value = this.experiment.selectedVariant?.id
+    }
   }
 
   private listenOnNewVariants() {
