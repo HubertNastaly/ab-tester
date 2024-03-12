@@ -10,6 +10,5 @@ export interface Experiment {
 }
 
 export interface ActiveVariant {
-  experimentIndex: number
-  variantId: string
+  experimentName: string
 }

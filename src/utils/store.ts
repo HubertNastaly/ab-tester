@@ -1,4 +1,4 @@
-import { Experiment, Variant } from "../types"
+import { ActiveVariant, Experiment, Variant } from "../types"
 import { activeExperimentChanged, experimentRemoved, experimentsAdded, variantAdded } from "./events"
 import { observer } from "./observer"
 import { PORT_IDS } from "./portIds"
@@ -6,7 +6,7 @@ import { saveExperiments } from "./savedExperiments"
 
 interface InternalStore {
   experiments: Experiment[]
-  activeExperimentIndex?: number
+  activeVariant?: ActiveVariant
 }
 
 export class Store {
@@ -25,52 +25,81 @@ export class Store {
   }
 
   private _save() {
-    const { experiments, activeExperimentIndex } = this._store
-    if(activeExperimentIndex === undefined) {
+    const { experiments, activeVariant } = this._store
+    if(!activeVariant) {
       saveExperiments(experiments)
       return
     }
   
-    const { activeVariantId } = experiments[activeExperimentIndex]
-    if(activeVariantId === undefined) {
-      throw new Error('Active experiment has no active variant')
-    }
-  
-    saveExperiments(experiments, {
-      experimentIndex: activeExperimentIndex,
-      variantId: activeVariantId
-    })
+    saveExperiments(experiments, activeVariant)
   }
 
-  public setActiveExperimentIndex(newIndex: number | undefined) {
-    const oldIndex = this._store.activeExperimentIndex
-    this._store.activeExperimentIndex = newIndex
+  private _findExperimentIndex(experimentName: string | undefined) {
+    if(!experimentName) return -1;
+    return this._store.experiments.findIndex(({ name }) => name === experimentName)
+  }
+
+  public findExperiment(experimentName: string | undefined) {
+    if(!experimentName) return undefined
+    return this._store.experiments.find(({ name }) => name === experimentName)
+  }
+
+  public setActiveExperiment(newExperimentName: string | undefined) {
+    // const oldExperimentName = this._store.activeVariant?.experimentName
+    const oldExperiment = this.findExperiment(this._store.activeVariant?.experimentName)
+    const newExperiment = this.findExperiment(newExperimentName)
+
+    if(!newExperiment) {
+      this._store.activeVariant = undefined
+    } else {
+      if(!newExperiment.activeVariantId) {
+        throw new Error(`Missing variant id for activated experiment: ${newExperimentName}`)
+      }
+      this._store.activeVariant = {
+        experimentName: newExperiment.name,
+        // variantId: newExperiment.activeVariantId
+      }
+    }
+
     this._save()
-    observer.port(PORT_IDS.global).emit(activeExperimentChanged(oldIndex, newIndex))
+    observer.port(PORT_IDS.global).emit(activeExperimentChanged(oldExperiment, newExperiment))
   }
 
   public pushExperiments(experiments: Experiment[]) {
     this._store.experiments.push(...experiments)
+    // TODO: save store
     observer.port(PORT_IDS.global).emit(experimentsAdded(experiments))
   }
 
-  public removeExperiment(experimentIndex: number) {
-    this._store.experiments.splice(experimentIndex, 1)
-    if(this._store.activeExperimentIndex === experimentIndex) {
-      this.setActiveExperimentIndex(undefined)
+  public removeExperiment(experimentName: string) {
+    const experimentIndex = this._findExperimentIndex(experimentName)
+    if(experimentIndex === -1) {
+      throw new Error(`Cannot remove experiment: ${experimentName} as it doesn't exist`)
     }
+
+    if(this._store.activeVariant?.experimentName === experimentName) {
+      this.setActiveExperiment(undefined)
+    }
+    this._store.experiments.splice(experimentIndex, 1)
+
     this._save()
-    observer.port(PORT_IDS.global).emit(experimentRemoved(experimentIndex))
+    observer.port(PORT_IDS.global).emit(experimentRemoved(experimentName))
   }
 
-  public pushVariants(experimentIndex: number, variant: Variant) {
+  public pushVariants(experimentName: string, variant: Variant) {
+    const experimentIndex = this._findExperimentIndex(experimentName)
+    if(experimentIndex === -1) {
+      throw new Error(`Cannot find experiment: ${experimentName}`)
+    }
+
     const experiment = this._store.experiments[experimentIndex]
     experiment.variants.push(variant)
     if(!experiment.activeVariantId) {
       experiment.activeVariantId = variant.id
     }
+
     this._save()
-    observer.port(PORT_IDS.experiment(experimentIndex)).emit(variantAdded(variant))
+    observer.port(PORT_IDS.experiment(experimentName)).emit(variantAdded(variant))
   }
 }
 

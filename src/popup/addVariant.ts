@@ -3,11 +3,11 @@ import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { store } from "../utils/store";
 
 export class AddVariant extends ExtendedHtmlElement {
-  private experimentIndex: number
+  private experimentName: string
 
-  constructor(_experimentIndex: number) {
+  constructor(_experimentName: string) {
     super('add-variant-template');
-    this.experimentIndex = _experimentIndex;
+    this.experimentName = _experimentName;
   }
   
   connectedCallback() {
@@ -43,7 +43,7 @@ export class AddVariant extends ExtendedHtmlElement {
         name: variantName
       }
 
-      store.pushVariants(this.experimentIndex, newVariant)
+      store.pushVariants(this.experimentName, newVariant)
 
       this.remove()
     })

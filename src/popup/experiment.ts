@@ -9,15 +9,13 @@ import { AddVariant } from "./addVariant";
 import { RemoveExperiment } from "./removeExperiment";
 
 export class ExperimentElement extends ExtendedHtmlElement {
-  private index: number
   private name: string
   private variants: Variant[]
   private activeVariantId?: string;
   private isActive?: boolean
 
-  constructor(_index: number, _name: string, _variants: Variant[] = []) {
+  constructor(_name: string, _variants: Variant[] = []) {
     super('experiment-template')
-    this.index = _index;
     this.name = _name;
     this.variants = _variants;
   }
@@ -60,7 +58,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
   }
 
   private listenOnNewVariants() {
-    observer.port(PORT_IDS.experiment(this.index)).observe(EventName.VariantAdded, ({ variant }) => {
+    observer.port(PORT_IDS.experiment(this.name)).observe(EventName.VariantAdded, ({ variant }) => {
       const option = this.createVariantOption(variant)
       this.getVariantSelect().appendChild(option)
   
@@ -89,7 +87,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
 
   private listenOnActivateClick() {
     this.getActivateButton().addEventListener('click', async () => {
-      store.setActiveExperimentIndex(this.isActive ? undefined : this.index)
+      store.setActiveExperiment(this.isActive ? undefined : this.name)
     })
   }
 
@@ -101,7 +99,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
       if(addVariantForm) {
         column.removeChild(addVariantForm)
       } else {
-        column.appendChild(new AddVariant(this.index))
+        column.appendChild(new AddVariant(this.name))
       }
     })
   }
@@ -114,7 +112,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
       if(removeExperimentForm) {
         column.removeChild(removeExperimentForm)
       } else {
-        column.appendChild(new RemoveExperiment(this.index))
+        column.appendChild(new RemoveExperiment(this.name))
       }
     })
   }

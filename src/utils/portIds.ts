@@ -1,4 +1,4 @@
 export const PORT_IDS = {
   global: 'global',
-  experiment: (experimentIndex: number) => `experiment-${experimentIndex}`
+  experiment: (experimentName: string) => `experiment-${experimentName}`
 }

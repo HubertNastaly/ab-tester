@@ -12,14 +12,14 @@ export interface EventPayload {
     experiments: Experiment[]
   },
   [EventName.ActiveExperimentChanged]: {
-    oldExperimentIndex: number | undefined
-    newExperimentIndex: number | undefined
+    oldExperiment: Experiment | undefined
+    newExperiment: Experiment | undefined
   },
   [EventName.VariantAdded]: {
     variant: Variant
   },
   [EventName.ExperimentRemoved]: {
-    experimentIndex: number
+    experimentName: string
   }
 }
 
@@ -30,8 +30,8 @@ export const experimentsAdded = (experiments: Experiment[]) =>
 
 // Active Experiment Changed
 export type ActiveExperimentChangedEvent = CustomEvent<EventPayload['activeExperimentChanged']>
-export const activeExperimentChanged = (oldExperimentIndex: number | undefined, newExperimentIndex: number | undefined) =>
-  new CustomEvent<EventPayload['activeExperimentChanged']>(EventName.ActiveExperimentChanged, { detail: { oldExperimentIndex, newExperimentIndex } })
+export const activeExperimentChanged = (oldExperiment: Experiment | undefined, newExperiment: Experiment | undefined) =>
+  new CustomEvent<EventPayload['activeExperimentChanged']>(EventName.ActiveExperimentChanged, { detail: { oldExperiment, newExperiment } })
 
 // Variant Added
 export type VariantAddedEvent = CustomEvent<EventPayload['variantAdded']>
@@ -40,5 +40,5 @@ export const variantAdded = (variant: Variant) =>
 
 // Experiment Removed
 export type ExperimentRemoved = CustomEvent<EventPayload['experimentRemoved']>
-export const experimentRemoved = (experimentIndex: number) =>
-  new CustomEvent<EventPayload['experimentRemoved']>(EventName.ExperimentRemoved, { detail: { experimentIndex }})
+export const experimentRemoved = (experimentName: string) =>
+  new CustomEvent<EventPayload['experimentRemoved']>(EventName.ExperimentRemoved, { detail: { experimentName }})
