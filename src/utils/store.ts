@@ -4,6 +4,15 @@ import { observer } from "./observer"
 import { PORT_IDS } from "./portIds"
 import { saveExperiments } from "./savedExperiments"
 
+type RecuirsiveReadonly<T> = {
+  readonly [P in keyof T]:
+    T[P] extends [] ?
+      ReadonlyArray<RecuirsiveReadonly<T[P][number]>> :
+    T[P] extends {} ?
+      RecuirsiveReadonly<T[P]> :
+    Readonly<T[P]>
+}
+
 interface InternalStore {
   experiments: Experiment[]
   activeExperiment?: Experiment
@@ -18,7 +27,7 @@ export class Store {
     }
   }
 
-  public read(): Readonly<InternalStore> {
+  public read(): RecuirsiveReadonly<InternalStore> {
     // TODO: freeze
     // return Object.freeze(this._store)
     return this._store
@@ -39,24 +48,16 @@ export class Store {
     return this._store.experiments.findIndex(({ name }) => name === experimentName)
   }
 
-  public findExperiment(experimentName: string | undefined) {
+  public findExperiment(experimentName: string | undefined): Experiment | undefined {
     if(!experimentName) return undefined
     return this._store.experiments.find(({ name }) => name === experimentName)
   }
 
   public setActiveExperiment(newExperimentName: string | undefined) {
-    // const oldExperimentName = this._store.activeVariant?.experimentName
     const oldExperiment = this._store.activeExperiment
     const newExperiment = this.findExperiment(newExperimentName)
 
-    if(!newExperiment) {
-      this._store.activeExperiment = undefined
-    } else {
-      if(!newExperiment.activeVariantId) {
-        throw new Error(`Missing variant id for activated experiment: ${newExperimentName}`)
-      }
-      this._store.activeExperiment = newExperiment
-    }
+    this._store.activeExperiment = newExperiment
 
     this._save()
     observer.port(PORT_IDS.global).emit(activeExperimentChanged(oldExperiment, newExperiment))
@@ -64,7 +65,7 @@ export class Store {
 
   public pushExperiments(experiments: Experiment[]) {
     this._store.experiments.push(...experiments)
-    // TODO: save store
+    this._save()
     observer.port(PORT_IDS.global).emit(experimentsAdded(experiments))
   }
 

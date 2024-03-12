@@ -44,7 +44,6 @@ export class AddExperiment extends ExtendedHtmlElement {
       store.pushExperiments([{
         name: experimentName,
         variants: [],
-        // activeVariantId: 0
       }])
 
       input.value = ''
