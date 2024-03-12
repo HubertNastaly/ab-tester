@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AB Tester 🧪</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <template id="experiment-template">
+      <div class="column fullWidth">
+        <div class="row fullWidth">
+          <button class="activate" disabled="true">Activate</button>
+          <span class="experiment-key"></span>
+          <select class="experimentVariant"></select>
+          <button class="addVariant iconButton" title="Add variant">+</button>
+          <button class="removeExperiment iconButton danger" title="Remove experiment">🚫</button>
+        </div>
+      </div>
+    </template>
+
+    <template id="add-variant-template">
+      <form class="column fullWidth">
+        <label name="variant-name">
+          Variant name
+          <input type="text" required/>
+        </label>
+        <label name="variant-id">
+          Variant ID
+          <input type="text" required/>
+        </label>
+        <button disabled="true">Add</button>
+      </form>
+    </template>
+
+    <template id="add-experiment-template">
+      <form data-testid="experiment-name" class="row">
+        <label>
+          Experiment name
+          <input type="text" />
+        </label>
+        <button disabled="true">Add</button>
+      </form>
+    </template>
+
+    <template id="remove-experiment">
+      <button class="danger fullWidth">Remove experiment</button>
+    </template>
+
+    <script type="module" src="/src/popup/index.ts"></script>
+  </body>
+</html>
