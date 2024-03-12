@@ -30,9 +30,8 @@ export class Experiments extends ExtendedHtmlElement {
 
   private listenOnNewExperiments() {
     observer.port(PORT_IDS.global).observe(EventName.ExperimentsAdded, ({ experiments }) => {
-      experiments.forEach(({ name, variants }) => {
-        const newExperiment = new ExperimentElement(name, variants)
-        this.appendChild(newExperiment)
+      experiments.forEach((experiment) => {
+        this.appendChild(new ExperimentElement(experiment))
       })
     })
   }
@@ -56,15 +55,15 @@ export class Experiments extends ExtendedHtmlElement {
         return
       }
 
-      const { activeVariantId } = newExperiment
-      if(!activeVariantId) return;
+      const { selectedVariant } = newExperiment
+      if(!selectedVariant) return;
 
       const newExperimentElement = this._getExperimentElement(newExperiment.name)
       newExperimentElement.setAttribute('active', 'true')
 
       const currentUrlVariantId = await getCurrentUrlVariantId()
-      if(activeVariantId !== currentUrlVariantId) {
-        updateUrl((currentUrl) => withVariantQuery(currentUrl, activeVariantId))
+      if(selectedVariant.id !== currentUrlVariantId) {
+        updateUrl((currentUrl) => withVariantQuery(currentUrl, selectedVariant.id))
       }
     })
   }

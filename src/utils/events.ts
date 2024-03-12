@@ -4,7 +4,8 @@ export enum EventName {
   ExperimentsAdded = 'experimentsAdded',
   ActiveExperimentChanged = 'activeExperimentChanged',
   VariantAdded = 'variantAdded',
-  ExperimentRemoved = 'experimentRemoved'
+  ExperimentRemoved = 'experimentRemoved',
+  SelectedVariantChanged = 'selectedVariantChanged'
 }
 
 export interface EventPayload {
@@ -20,6 +21,10 @@ export interface EventPayload {
   },
   [EventName.ExperimentRemoved]: {
     experimentName: string
+  },
+  [EventName.SelectedVariantChanged]: {
+    experimentName: string
+    variant: Variant
   }
 }
 
@@ -42,3 +47,8 @@ export const variantAdded = (variant: Variant) =>
 export type ExperimentRemoved = CustomEvent<EventPayload['experimentRemoved']>
 export const experimentRemoved = (experimentName: string) =>
   new CustomEvent<EventPayload['experimentRemoved']>(EventName.ExperimentRemoved, { detail: { experimentName }})
+
+// Selected Variant Chnaged
+export type SelectedVariantChanged = CustomEvent<EventPayload['selectedVariantChanged']>
+export const selectedVariantChanged = (experimentName: string, variant: Variant) => 
+  new CustomEvent<EventPayload['selectedVariantChanged']>(EventName.SelectedVariantChanged, { detail: { experimentName, variant }})

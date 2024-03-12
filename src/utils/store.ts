@@ -1,5 +1,5 @@
 import { Experiment, Variant } from "../types"
-import { activeExperimentChanged, experimentRemoved, experimentsAdded, variantAdded } from "./events"
+import { activeExperimentChanged, experimentRemoved, experimentsAdded, selectedVariantChanged, variantAdded } from "./events"
 import { observer } from "./observer"
 import { PORT_IDS } from "./portIds"
 import { saveExperiments } from "./savedExperiments"
@@ -44,18 +44,24 @@ export class Store {
   }
 
   private _findExperimentIndex(experimentName: string | undefined) {
-    if(!experimentName) return -1;
-    return this._store.experiments.findIndex(({ name }) => name === experimentName)
+    const experimentIndex = this._store.experiments.findIndex(({ name }) => name === experimentName)
+    if(experimentIndex === -1) {
+      throw new Error(`Cannot find experiment: ${experimentName}`)
+    }
+    return experimentIndex
   }
 
-  public findExperiment(experimentName: string | undefined): Experiment | undefined {
-    if(!experimentName) return undefined
-    return this._store.experiments.find(({ name }) => name === experimentName)
+  public getExperiment(experimentName: string): Experiment {
+    const experiment = this._store.experiments.find(({ name }) => name === experimentName)
+    if(!experiment) {
+      throw new Error(`Experiment ${experimentName} does not exist`)
+    }
+    return experiment
   }
 
   public setActiveExperiment(newExperimentName: string | undefined) {
     const oldExperiment = this._store.activeExperiment
-    const newExperiment = this.findExperiment(newExperimentName)
+    const newExperiment = newExperimentName ? this.getExperiment(newExperimentName) : undefined
 
     this._store.activeExperiment = newExperiment
 
@@ -71,9 +77,6 @@ export class Store {
 
   public removeExperiment(experimentName: string) {
     const experimentIndex = this._findExperimentIndex(experimentName)
-    if(experimentIndex === -1) {
-      throw new Error(`Cannot remove experiment: ${experimentName} as it doesn't exist`)
-    }
 
     if(this._store.activeExperiment?.name === experimentName) {
       this.setActiveExperiment(undefined)
@@ -86,18 +89,24 @@ export class Store {
 
   public pushVariants(experimentName: string, variant: Variant) {
     const experimentIndex = this._findExperimentIndex(experimentName)
-    if(experimentIndex === -1) {
-      throw new Error(`Cannot find experiment: ${experimentName}`)
-    }
-
     const experiment = this._store.experiments[experimentIndex]
+
     experiment.variants.push(variant)
-    if(!experiment.activeVariantId) {
-      experiment.activeVariantId = variant.id
+    if(!experiment.selectedVariant) {
+      experiment.selectedVariant = variant
     }
 
     this._save()
     observer.port(PORT_IDS.experiment(experimentName)).emit(variantAdded(variant))
+  }
+
+  public selectVariant(experimentName: string, variant: Variant) {
+    const experimentIndex = this._findExperimentIndex(experimentName)
+
+    this._store.experiments[experimentIndex].selectedVariant = variant
+
+    this._save()
+    observer.port(PORT_IDS.experiment(experimentName)).emit(selectedVariantChanged(experimentName, variant))
   }
 }
 

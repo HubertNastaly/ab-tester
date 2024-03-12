@@ -51,7 +51,7 @@ export function parseSavedExperiments(savedExperiments: string): {
     if(!activeExperiment) {
       throw new Error(`Active experiment not found: ${activeExperimentName}`)
     }
-    activeExperiment.activeVariantId = activeExperiment.variants[0].id
+    activeExperiment.selectedVariant = activeExperiment.variants[0]
     return { experiments, activeExperiment };
   }
   return { experiments: parts.map(parseExperiment) };
@@ -67,7 +67,7 @@ function parseExperiment(experiment: string): Experiment {
   return {
     name,
     variants: variantsParsed,
-    activeVariantId: variantsParsed.length > 0 ? variantsParsed[0].id : undefined,
+    selectedVariant: variantsParsed.length > 0 ? variantsParsed[0] : undefined,
   };
 }
 

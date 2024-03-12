@@ -6,5 +6,5 @@ export interface Variant {
 export interface Experiment {
   name: string
   variants: Variant[]
-  activeVariantId?: string
+  selectedVariant?: Variant
 }

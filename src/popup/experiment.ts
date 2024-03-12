@@ -1,4 +1,4 @@
-import { Variant } from "../types";
+import { Experiment, Variant } from "../types";
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { createSelectOption } from "../utils/createElement";
 import { EventName } from "../utils/events";
@@ -9,29 +9,25 @@ import { AddVariant } from "./addVariant";
 import { RemoveExperiment } from "./removeExperiment";
 
 export class ExperimentElement extends ExtendedHtmlElement {
-  private name: string
-  private variants: Variant[]
-  private activeVariantId?: string;
+  private readonly experiment: Experiment
   private isActive?: boolean
 
-  constructor(_name: string, _variants: Variant[] = []) {
+  constructor(_experiment: Experiment) {
     super('experiment-template')
-    this.name = _name;
-    this.variants = _variants;
+    this.experiment = _experiment;
   }
 
   connectedCallback() {
     this.createFromTemplate()
 
-    if(this.variants.length > 0) {
-      this.activeVariantId = this.variants[this.variants.length - 1].id
+    if(this.experiment.variants.length > 0) {
       this.enableActivateButton()
     }
 
-    this.setAttribute('experiment-name', this.name)
+    this.setAttribute('experiment-name', this.experiment.name)
     
-    this.fillExperimentKey(this.name)
-    this.addVariantOptions(this.variants)
+    this.fillExperimentKey()
+    this.addVariantOptions()
     this.listenOnPlusButtonClick()
     this.listenOnRemoveExperimentButtonClick()
     this.listenOnNewVariants()
@@ -39,34 +35,35 @@ export class ExperimentElement extends ExtendedHtmlElement {
     this.listenOnActivateChange()
   }
 
-  private fillExperimentKey(name: string) {
+  private fillExperimentKey() {
     const experimentKey = this.getBySelector<HTMLButtonElement>('.experiment-key')
-    experimentKey.innerHTML = name;
+    experimentKey.innerHTML = this.experiment.name;
   }
 
-  private addVariantOptions(variants: Variant[]) {
+  private addVariantOptions() {
     const variantSelect = this.getVariantSelect()
 
     variantSelect.addEventListener('change', () => {
-      this.activeVariantId = variantSelect.value
+      const newSelectedVariant = this.experiment.variants.find(({ id }) => id === variantSelect.value)
+      store.selectVariant(this.experiment.name, newSelectedVariant!)
     })
 
-    variants.forEach(variant => {
+    this.experiment.variants.forEach(variant => {
       const option = this.createVariantOption(variant)
       variantSelect.appendChild(option)
     })
   }
 
   private listenOnNewVariants() {
-    observer.port(PORT_IDS.experiment(this.name)).observe(EventName.VariantAdded, ({ variant }) => {
+    observer.port(PORT_IDS.experiment(this.experiment.name)).observe(EventName.VariantAdded, ({ variant }) => {
       const option = this.createVariantOption(variant)
       this.getVariantSelect().appendChild(option)
   
-      if(!this.activeVariantId) {
-        this.activeVariantId = variant.id
+      if(!this.experiment.selectedVariant) {
+        store.selectVariant(this.experiment.name, variant)
       }
   
-      if(this.variants.length === 1) {
+      if(this.experiment.variants.length === 1) {
         this.enableActivateButton()
       }
     })
@@ -87,7 +84,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
 
   private listenOnActivateClick() {
     this.getActivateButton().addEventListener('click', async () => {
-      store.setActiveExperiment(this.isActive ? undefined : this.name)
+      store.setActiveExperiment(this.isActive ? undefined : this.experiment.name)
     })
   }
 
@@ -99,7 +96,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
       if(addVariantForm) {
         column.removeChild(addVariantForm)
       } else {
-        column.appendChild(new AddVariant(this.name))
+        column.appendChild(new AddVariant(this.experiment.name))
       }
     })
   }
@@ -112,7 +109,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
       if(removeExperimentForm) {
         column.removeChild(removeExperimentForm)
       } else {
-        column.appendChild(new RemoveExperiment(this.name))
+        column.appendChild(new RemoveExperiment(this.experiment.name))
       }
     })
   }
