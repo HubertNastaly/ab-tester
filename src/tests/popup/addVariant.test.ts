@@ -13,21 +13,17 @@ describe('add variant', () => {
 
   const variantIdInputSelector = SELECTORS.variantIdInput(experimentName)
   const variantNameInputSelector = SELECTORS.variantNameInput(experimentName)
-  const toggleVariantFormButtonSelector = SELECTORS.addVariantButton(experimentName)
-  const submitVariantButtonSelector = SELECTORS.submitVariantButton(experimentName)
-  const variantSelectSelector = SELECTORS.variantSelect(experimentName)
-  const optionSelector = `${variantSelectSelector} option`
+  const optionSelector = `${SELECTORS.variantSelect(experimentName)} option`
 
-  async function mockExperiment() {
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, experimentName);
-    await tester.waitForEnabled(SELECTORS.addExperimentButton)
-    await tester.click(SELECTORS.addExperimentButton)
-  }
+  const fillVariantId = async (id: string) => tester.waitForAndFill(variantIdInputSelector, id)
+  const fillVariantName = async (name: string) => tester.waitForAndFill(variantNameInputSelector, name)
+  const isSubmitVariantDisabled = async () => tester.isButtonDisabled(SELECTORS.submitVariantButton(experimentName))
+  const clickOpenVariantForm = async () => tester.waitForAndClick(SELECTORS.addVariantButton(experimentName))
+  const clickSubmitVariantButton = async () => tester.waitForAndClick(SELECTORS.submitVariantButton(experimentName))
 
   beforeEach(async () => {
     tester = await Tester.create()
-    await mockExperiment()
-    await tester.waitForAndClick(toggleVariantFormButtonSelector)
+    await tester.addExperiments([{ name: experimentName, variants: [] }])
   })
 
   afterEach(async () => {
@@ -35,55 +31,58 @@ describe('add variant', () => {
   })
 
   test('variant name is required', async () => {
-    await tester.waitForAndFill(variantIdInputSelector, variant.id)
-    expect(await tester.isButtonDisabled(submitVariantButtonSelector)).toBe(true)
+    await clickOpenVariantForm()
+    await fillVariantId(variant.id)
+    expect(await isSubmitVariantDisabled()).toBe(true)
   })
 
   test('variant id is required', async () => {
-    await tester.waitForAndFill(variantNameInputSelector, variant.name)
-    expect(await tester.isButtonDisabled(submitVariantButtonSelector)).toBe(true)
+    await clickOpenVariantForm()
+    await fillVariantName(variant.name)
+    expect(await isSubmitVariantDisabled()).toBe(true)
   })
 
   test('enables submit button once all fields are provided', async () => {
-    await tester.waitForAndFill(variantNameInputSelector, variant.name)
-    await tester.waitForAndFill(variantIdInputSelector, variant.id)
-
-    expect(await tester.isButtonDisabled(submitVariantButtonSelector)).toBe(false)
+    await clickOpenVariantForm()
+    await fillVariantId(variant.id)
+    await fillVariantName(variant.name)
+    expect(await isSubmitVariantDisabled()).toBe(false)
   })
 
   test('adds variant', async () => {
-    await tester.waitForAndFill(variantNameInputSelector, variant.name)
-    await tester.waitForAndFill(variantIdInputSelector, variant.id)
-    await tester.page.click(submitVariantButtonSelector)
-    
+    await clickOpenVariantForm()
+    await fillVariantId(variant.id)
+    await fillVariantName(variant.name)
+    await clickSubmitVariantButton()
     expect(await tester.getTextContent(optionSelector)).toBe('B (1234567890)')
   })
 
   test('clears inputs after adding variants', async () => {
-    await tester.waitForAndFill(variantNameInputSelector, variant.name)
-    await tester.waitForAndFill(variantIdInputSelector, variant.id)
-    await tester.waitForAndClick(submitVariantButtonSelector)
+    await clickOpenVariantForm()
+    await fillVariantId(variant.id)
+    await fillVariantName(variant.name)
+    await clickSubmitVariantButton()
 
-    await tester.waitForAndClick(toggleVariantFormButtonSelector)
+    await clickOpenVariantForm()
 
     expect(await tester.getTextContent(variantNameInputSelector)).toBe('')
     expect(await tester.getTextContent(variantIdInputSelector)).toBe('')
   })
 
   test('can add another variant', async () => {
-    await tester.waitForAndFill(variantNameInputSelector, variant.name)
-    await tester.waitForAndFill(variantIdInputSelector, variant.id)
-    await tester.waitForAndClick(submitVariantButtonSelector)
-
-    await tester.waitForAndClick(toggleVariantFormButtonSelector)
+    await clickOpenVariantForm()
+    await fillVariantId(variant.id)
+    await fillVariantName(variant.name)
+    await clickSubmitVariantButton()
 
     const anotherVariant: Variant = {
       name: 'C',
       id: '0987654321'
     }
-    await tester.waitForAndFill(variantNameInputSelector, anotherVariant.name)
-    await tester.waitForAndFill(variantIdInputSelector, anotherVariant.id)
-    await tester.waitForAndClick(submitVariantButtonSelector)
+    await clickOpenVariantForm()
+    await fillVariantId(anotherVariant.id)
+    await fillVariantName(anotherVariant.name)
+    await clickSubmitVariantButton()
 
     const optionLabels = await tester.page.$$eval(optionSelector, options => options.map(({ textContent }) => textContent))
     expect(optionLabels.length).toBe(2)
@@ -92,8 +91,10 @@ describe('add variant', () => {
   })
 
   test('hides form on second plus button click', async () => {
+    await clickOpenVariantForm()
     expect(await tester.page.$(variantNameInputSelector)).toBeDefined()
-    await tester.waitForAndClick(toggleVariantFormButtonSelector)
+
+    await clickOpenVariantForm()
     expect(await tester.page.$(variantNameInputSelector)).toBeNull()
   })
 })

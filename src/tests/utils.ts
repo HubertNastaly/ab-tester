@@ -1,5 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer-core'
 import { assert } from 'vitest'
+import { Experiment, Variant } from '../types'
 
 const CHROME_LOCATION = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const EXTENSION_PATH = './dist'
@@ -13,12 +14,12 @@ export const SELECTORS = {
   addExperimentInput: '[data-testid="experiment-name"] input',
   addExperimentButton: '[data-testid="experiment-name"] button',
   addVariantButton: (experimentName: string) => withinExperiment(experimentName, 'button.addVariant'),
+  removeExperimentButton: (experimentName: string) => withinExperiment(experimentName, 'button.removeExperiment'),
   submitVariantButton: (experimentName: string) => withinExperiment(experimentName, 'add-variant button'),
   activateButton: (experimentName: string) => withinExperiment(experimentName, '.activate'),
   variantSelect: (experimentName: string) => withinExperiment(experimentName, 'select.experimentVariant'),
   variantIdInput: (experimentName: string) => `[experiment-name="${experimentName}"] [name="variant-id"] input`,
   variantNameInput: (experimentName: string) => `[experiment-name="${experimentName}"] [name="variant-name"] input`,
-  // notDisabled: (selector: string) => `${selector}:not([disabled])`,
   withinExperiment,
 }
 
@@ -99,5 +100,26 @@ export class Tester {
 
   public async waitForEnabled(selector: string) {
     return this.waitForSelector(enabled(selector))
+  }
+
+  private async addVariant(experimentName: string, { id, name }: Variant) {
+    await this.waitForAndClick(SELECTORS.addVariantButton(experimentName))
+    await this.waitForAndFill(SELECTORS.variantNameInput(experimentName), name)
+    await this.waitForAndFill(SELECTORS.variantIdInput(experimentName), id)
+  
+    await this.waitForAndClick(SELECTORS.submitVariantButton(experimentName))
+  }
+
+  public async addExperiments(experiments: Experiment[]) {
+    for(let i=0; i<experiments.length; i++) {
+      const { name: experimentName, variants } = experiments[i]
+      await this.waitForAndFill(SELECTORS.addExperimentInput, experimentName);
+      await this.waitForEnabled(SELECTORS.addExperimentButton)
+      await this.click(SELECTORS.addExperimentButton)
+  
+      for(const variant of variants) {
+        await this.addVariant(experimentName, variant)
+      }
+    }
   }
 }

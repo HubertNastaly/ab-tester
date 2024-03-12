@@ -4,6 +4,14 @@ import { SELECTORS, Tester } from '../utils'
 describe('add experiment', () => {
   let tester: Tester
 
+  const fillExperimentName = async (experimentName: string) => tester.waitForAndFill(SELECTORS.addExperimentInput, experimentName)
+  const getExperimentNameInputValue = async () => tester.getInputValue(SELECTORS.addExperimentInput)
+  const clickAddExperiment = async () => {
+    const addButton = await tester.getByText('Add')
+    await addButton.click()
+  }
+  const isAddButtonDisabled = async () => tester.isButtonDisabled(SELECTORS.addExperimentButton)
+
   beforeEach(async () => {
     tester = await Tester.create()
   })
@@ -13,50 +21,45 @@ describe('add experiment', () => {
   })
 
   test('cannot add without name', async () => {
-    const addButton = await tester.getByText('Add')
-    await addButton.click()
+    await clickAddExperiment()
 
-    expect(await tester.isButtonDisabled(SELECTORS.addExperimentButton)).toBe(true)
+    expect(await isAddButtonDisabled()).toBe(true)
     await expect(tester.getByText('Activate')).rejects.toThrow()
 
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, 'EX-123')
-    expect(await tester.isButtonDisabled(SELECTORS.addExperimentButton)).toBe(false)
+    await fillExperimentName('EX-123')
+    expect(await isAddButtonDisabled()).toBe(false)
   })
 
   test('only unique names', async () => {
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, 'EX-123')
-    const addButton = await tester.getByText('Add')
-    await addButton.click()
+    await fillExperimentName('EX-123')
+    await clickAddExperiment()
 
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, 'EX-123')
-    expect(await tester.isButtonDisabled(SELECTORS.addExperimentButton)).toBe(true)
+    await fillExperimentName('EX-123')
+    expect(await isAddButtonDisabled()).toBe(true)
   })
 
   test('can add with unique name', async () => {
     await expect(tester.getByText('Activate')).rejects.toThrow()
 
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, 'EX-123')
-    const addButton = await tester.getByText('Add')
-    await addButton.click()
+    await fillExperimentName('EX-123')
+    await clickAddExperiment()
 
     expect(await tester.getByText('Activate')).toBeDefined()
     expect(await tester.getByText('EX-123')).toBeDefined()
   })
 
   test('clears input after experiment added', async () => {
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, 'EX-123')
-    expect(await tester.getInputValue(SELECTORS.addExperimentInput)).toBe('EX-123')
+    await fillExperimentName('EX-123')
+    expect(await getExperimentNameInputValue()).toBe('EX-123')
 
-    const addButton = await tester.getByText('Add')
-    await addButton.click()
+    await clickAddExperiment()
 
-    expect(await tester.getInputValue(SELECTORS.addExperimentInput)).toBe('')
+    expect(await getExperimentNameInputValue()).toBe('')
   })
 
   test('disables Add button once experiment is added', async () => {
-    await tester.waitForAndFill(SELECTORS.addExperimentInput, 'EX-123')
-    const addButton = await tester.getByText('Add')
-    await addButton.click()
-    expect(await tester.isButtonDisabled(SELECTORS.addExperimentButton)).toBe(true)
+    await fillExperimentName('EX-123')
+    await clickAddExperiment()
+    expect(await isAddButtonDisabled()).toBe(true)
   })
 })
