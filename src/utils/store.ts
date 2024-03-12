@@ -1,17 +1,8 @@
-import { Experiment, Variant } from "../types"
+import { Experiment, RecuirsiveReadonly, Variant } from "../types"
 import { activeExperimentChanged, experimentRemoved, experimentsAdded, selectedVariantChanged, variantAdded } from "./events"
 import { observer } from "./observer"
 import { PORT_IDS } from "./portIds"
 import { saveExperiments } from "./savedExperiments"
-
-type RecuirsiveReadonly<T> = {
-  readonly [P in keyof T]:
-    T[P] extends [] ?
-      ReadonlyArray<RecuirsiveReadonly<T[P][number]>> :
-    T[P] extends {} ?
-      RecuirsiveReadonly<T[P]> :
-    Readonly<T[P]>
-}
 
 interface InternalStore {
   experiments: Experiment[]
@@ -33,6 +24,10 @@ export class Store {
     return this._store
   }
 
+  public getExperiment(experimentName: string): RecuirsiveReadonly<Experiment> {
+    return this._getExperiment(experimentName)
+  }
+
   private _save() {
     const { experiments, activeExperiment } = this._store
     if(!activeExperiment) {
@@ -51,7 +46,7 @@ export class Store {
     return experimentIndex
   }
 
-  public getExperiment(experimentName: string): Experiment {
+  private _getExperiment(experimentName: string) {
     const experiment = this._store.experiments.find(({ name }) => name === experimentName)
     if(!experiment) {
       throw new Error(`Experiment ${experimentName} does not exist`)
@@ -61,7 +56,7 @@ export class Store {
 
   public setActiveExperiment(newExperimentName: string | undefined) {
     const oldExperiment = this._store.activeExperiment
-    const newExperiment = newExperimentName ? this.getExperiment(newExperimentName) : undefined
+    const newExperiment = newExperimentName ? this._getExperiment(newExperimentName) : undefined
 
     this._store.activeExperiment = newExperiment
 

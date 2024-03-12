@@ -8,3 +8,12 @@ export interface Experiment {
   variants: Variant[]
   selectedVariant?: Variant
 }
+
+export type RecuirsiveReadonly<T> = {
+  readonly [P in keyof T]:
+    T[P] extends [] ?
+      ReadonlyArray<RecuirsiveReadonly<T[P][number]>> :
+    T[P] extends {} ?
+      RecuirsiveReadonly<T[P]> :
+    Readonly<T[P]>
+}

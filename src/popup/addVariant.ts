@@ -1,13 +1,13 @@
-import { Variant } from "../types";
+import { Experiment, Variant } from "../types";
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { store } from "../utils/store";
 
 export class AddVariant extends ExtendedHtmlElement {
-  private experimentName: string
+  private readonly experiment: Experiment
 
-  constructor(_experimentName: string) {
+  constructor(_experiment: Experiment) {
     super('add-variant-template');
-    this.experimentName = _experimentName;
+    this.experiment = _experiment;
   }
   
   connectedCallback() {
@@ -43,7 +43,7 @@ export class AddVariant extends ExtendedHtmlElement {
         name: variantName
       }
 
-      store.pushVariants(this.experimentName, newVariant)
+      store.pushVariants(this.experiment.name, newVariant)
 
       this.remove()
     })

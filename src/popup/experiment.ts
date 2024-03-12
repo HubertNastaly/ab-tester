@@ -96,7 +96,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
       if(addVariantForm) {
         column.removeChild(addVariantForm)
       } else {
-        column.appendChild(new AddVariant(this.experiment.name))
+        column.appendChild(new AddVariant(this.experiment))
       }
     })
   }
@@ -109,7 +109,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
       if(removeExperimentForm) {
         column.removeChild(removeExperimentForm)
       } else {
-        column.appendChild(new RemoveExperiment(this.experiment.name))
+        column.appendChild(new RemoveExperiment(this.experiment))
       }
     })
   }

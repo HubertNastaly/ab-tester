@@ -1,12 +1,13 @@
+import { Experiment } from "../types";
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { store } from "../utils/store";
 
 export class RemoveExperiment extends ExtendedHtmlElement {
-  private experimentName: string
+  private readonly experiment: Experiment
 
-  constructor(_experimentName: string) {
+  constructor(_experiment: Readonly<Experiment>) {
     super('remove-experiment')
-    this.experimentName = _experimentName;
+    this.experiment = _experiment;
   }
 
   connectedCallback() {
@@ -16,7 +17,7 @@ export class RemoveExperiment extends ExtendedHtmlElement {
 
   private listenToRemoveClick() {
     this.getBySelector('button').addEventListener('click', async () => {
-      store.removeExperiment(this.experimentName)
+      store.removeExperiment(this.experiment.name)
     })
   }
 }
