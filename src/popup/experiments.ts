@@ -21,10 +21,10 @@ export class Experiments extends ExtendedHtmlElement {
     const savedExperiments = await readSavedExperiments()
     if(!savedExperiments) return;
 
-    const { experiments, activeVariant } = parseSavedExperiments(savedExperiments)
+    const { experiments, activeExperiment } = parseSavedExperiments(savedExperiments)
     store.pushExperiments(experiments)
-    if(activeVariant) {
-      store.setActiveExperiment(activeVariant.experimentName)
+    if(activeExperiment) {
+      store.setActiveExperiment(activeExperiment.name)
     }
   }
 

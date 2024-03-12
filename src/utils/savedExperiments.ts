@@ -1,7 +1,7 @@
 // saved experiments schema: $active=EX-NAME;EX-NAME-1:VARIANT-B_VARIANT-B-ID,VARIANT-C_VARIANT-C-ID;EX-NAME-2:...
 
 import { SAVED_EXPERIMENTS_KEY } from "../constants";
-import { ActiveVariant, Experiment, Variant } from "../types";
+import { Experiment, Variant } from "../types";
 
 const EXPERIMENTS_SEPARATOR = ";";
 const EXPERIMENTS_VARIANTS_SEPARATOR = ":";
@@ -17,11 +17,11 @@ export async function readSavedExperiments() {
 
 export async function saveExperiments(
   experiments: Experiment[],
-  activeVariant?: ActiveVariant
+  activeExperiment?: Experiment
 ) {
   const stringifiedExperiments = stringifyExperiments(experiments);
-  const allStringified = activeVariant
-    ? [stringifyActiveVariant(activeVariant), stringifiedExperiments].join(
+  const allStringified = activeExperiment
+    ? [stringifyActiveExperiment(activeExperiment.name), stringifiedExperiments].join(
         EXPERIMENTS_SEPARATOR
       )
     : stringifiedExperiments;
@@ -40,20 +40,19 @@ export async function saveNewExperiment(experimentName: string) {
 
 export function parseSavedExperiments(savedExperiments: string): {
   experiments: Experiment[];
-  activeVariant?: ActiveVariant;
+  activeExperiment?: Experiment;
 } {
   const parts = savedExperiments.split(EXPERIMENTS_SEPARATOR);
-  const hasActiveVariant = parts[0].startsWith(ACTIVE_VARIANT_PREFIX)
-  if (hasActiveVariant) {
-    const activeVariant = parseActiveVariant(parts[0]);
+  const hasActiveExperiment = parts[0].startsWith(ACTIVE_VARIANT_PREFIX)
+  if (hasActiveExperiment) {
+    const activeExperimentName = parseActiveExperimentName(parts[0]);
     const experiments = parts.slice(1).map(parseExperiment);
-    const { experimentName } = activeVariant
-    const activeExperiment = experiments.find(({ name }) => name === experimentName)
+    const activeExperiment = experiments.find(({ name }) => name === activeExperimentName)
     if(!activeExperiment) {
-      throw new Error(`Active experiment not found: ${experimentName}`)
+      throw new Error(`Active experiment not found: ${activeExperimentName}`)
     }
     activeExperiment.activeVariantId = activeExperiment.variants[0].id
-    return { experiments, activeVariant };
+    return { experiments, activeExperiment };
   }
   return { experiments: parts.map(parseExperiment) };
 }
@@ -77,9 +76,8 @@ function parseVariant(variant: string): Variant {
   return { name, id };
 }
 
-function parseActiveVariant(activeVariant: string): ActiveVariant {
-  const experimentName = activeVariant.replace(ACTIVE_VARIANT_PREFIX, "")
-  return { experimentName };
+function parseActiveExperimentName(prefixedExperimentName: string): string {
+  return prefixedExperimentName.replace(ACTIVE_VARIANT_PREFIX, '')
 }
 
 function stringifyExperiments(experiments: Experiment[]): string {
@@ -96,6 +94,6 @@ function stringifyExperiments(experiments: Experiment[]): string {
     .join(EXPERIMENTS_SEPARATOR);
 }
 
-function stringifyActiveVariant({ experimentName }: ActiveVariant): string {
+function stringifyActiveExperiment(experimentName: string): string {
   return `${ACTIVE_VARIANT_PREFIX}${experimentName}`;
 }

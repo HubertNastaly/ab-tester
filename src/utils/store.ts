@@ -1,4 +1,4 @@
-import { ActiveVariant, Experiment, Variant } from "../types"
+import { Experiment, Variant } from "../types"
 import { activeExperimentChanged, experimentRemoved, experimentsAdded, variantAdded } from "./events"
 import { observer } from "./observer"
 import { PORT_IDS } from "./portIds"
@@ -6,7 +6,7 @@ import { saveExperiments } from "./savedExperiments"
 
 interface InternalStore {
   experiments: Experiment[]
-  activeVariant?: ActiveVariant
+  activeExperiment?: Experiment
 }
 
 export class Store {
@@ -25,13 +25,13 @@ export class Store {
   }
 
   private _save() {
-    const { experiments, activeVariant } = this._store
-    if(!activeVariant) {
+    const { experiments, activeExperiment } = this._store
+    if(!activeExperiment) {
       saveExperiments(experiments)
       return
     }
   
-    saveExperiments(experiments, activeVariant)
+    saveExperiments(experiments, activeExperiment)
   }
 
   private _findExperimentIndex(experimentName: string | undefined) {
@@ -46,19 +46,16 @@ export class Store {
 
   public setActiveExperiment(newExperimentName: string | undefined) {
     // const oldExperimentName = this._store.activeVariant?.experimentName
-    const oldExperiment = this.findExperiment(this._store.activeVariant?.experimentName)
+    const oldExperiment = this._store.activeExperiment
     const newExperiment = this.findExperiment(newExperimentName)
 
     if(!newExperiment) {
-      this._store.activeVariant = undefined
+      this._store.activeExperiment = undefined
     } else {
       if(!newExperiment.activeVariantId) {
         throw new Error(`Missing variant id for activated experiment: ${newExperimentName}`)
       }
-      this._store.activeVariant = {
-        experimentName: newExperiment.name,
-        // variantId: newExperiment.activeVariantId
-      }
+      this._store.activeExperiment = newExperiment
     }
 
     this._save()
@@ -77,7 +74,7 @@ export class Store {
       throw new Error(`Cannot remove experiment: ${experimentName} as it doesn't exist`)
     }
 
-    if(this._store.activeVariant?.experimentName === experimentName) {
+    if(this._store.activeExperiment?.name === experimentName) {
       this.setActiveExperiment(undefined)
     }
     this._store.experiments.splice(experimentIndex, 1)

@@ -8,7 +8,3 @@ export interface Experiment {
   variants: Variant[]
   activeVariantId?: string
 }
-
-export interface ActiveVariant {
-  experimentName: string
-}
