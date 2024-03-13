@@ -1,12 +1,9 @@
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
-import { attemptUrlVariantUpdate } from "../utils/attemptUrlUpdate";
 import { EventName } from "../utils/events";
-import { observer } from "../utils/observer";
-import { PORT_IDS } from "../utils/portIds";
+import { PORTS, observer } from "../utils/observer";
 import { parseSavedExperiments, readSavedExperiments } from "../utils/savedExperiments";
 import { store } from "../utils/store";
-import { updateUrl } from "../utils/url";
-import { clearVariantQuery } from "../utils/withVariantQuery";
+import { attemptUrlVariantUpdate, clearVariantQuery, updateUrl } from "../utils/url";
 import { ExperimentElement } from "./experiment";
 
 export class Experiments extends ExtendedHtmlElement {
@@ -30,7 +27,7 @@ export class Experiments extends ExtendedHtmlElement {
   }
 
   private listenOnNewExperiments() {
-    observer.port(PORT_IDS.global).observe(EventName.ExperimentsAdded, ({ experiments }) => {
+    observer.port(PORTS.global).observe(EventName.ExperimentsAdded, ({ experiments }) => {
       experiments.forEach((experiment) => {
         this.appendChild(new ExperimentElement(experiment))
       })
@@ -38,14 +35,14 @@ export class Experiments extends ExtendedHtmlElement {
   }
 
   private listenOnExperimentRemoved() {
-    observer.port(PORT_IDS.global).observe(EventName.ExperimentRemoved, ({ experimentName }) => {
+    observer.port(PORTS.global).observe(EventName.ExperimentRemoved, ({ experimentName }) => {
       const experiment = this._getExperimentElement(experimentName)
       this.removeChild(experiment)
     })
   }
 
   private listenOnActiveExperimentChange() {
-    observer.port(PORT_IDS.global).observe(EventName.ActiveExperimentChanged, async ({ oldExperiment, newExperiment }) => {
+    observer.port(PORTS.global).observe(EventName.ActiveExperimentChanged, async ({ oldExperiment, newExperiment }) => {
       if(oldExperiment) {
         const oldExperimentElement = this._getExperimentElement(oldExperiment.name)
         oldExperimentElement.removeAttribute('active')

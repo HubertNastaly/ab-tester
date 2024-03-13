@@ -1,11 +1,10 @@
 import { Experiment, Variant } from "../types";
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
-import { attemptUrlVariantUpdate } from "../utils/attemptUrlUpdate";
 import { createSelectOption } from "../utils/createElement";
 import { EventName } from "../utils/events";
-import { observer } from "../utils/observer";
-import { PORT_IDS } from "../utils/portIds";
+import { PORTS, observer } from "../utils/observer";
 import { store } from "../utils/store";
+import { attemptUrlVariantUpdate } from "../utils/url";
 import { AddVariant } from "./addVariant";
 import { RemoveExperiment } from "./removeExperiment";
 
@@ -68,7 +67,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
   }
 
   private listenOnNewVariants() {
-    observer.port(PORT_IDS.experiment(this.experiment.name)).observe(EventName.VariantAdded, ({ variant }) => {
+    observer.port(PORTS.experiment(this.experiment.name)).observe(EventName.VariantAdded, ({ variant }) => {
       const option = this.createVariantOption(variant)
       this.getVariantSelect().appendChild(option)
   

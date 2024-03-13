@@ -1,15 +1,17 @@
-import { cloneTemplateContent } from "./cloneTemplateContent"
-
 export class ExtendedHtmlElement extends HTMLElement {
-  private readonly templateName: string
+  private readonly templateId: string
 
-  constructor(_templateName: string) {
+  constructor(_templateId: string) {
     super()
-    this.templateName = _templateName
+    this.templateId = _templateId
   }
 
   protected createFromTemplate() {
-    const content = cloneTemplateContent(this.templateName)
+    const template = document.getElementById(this.templateId) as HTMLTemplateElement | null
+    if(!template) {
+      throw new Error(`Cannot find template with id: ${this.templateId}`)
+    }
+    const content = template.content.cloneNode(true)
     this.appendChild(content)
   }
 

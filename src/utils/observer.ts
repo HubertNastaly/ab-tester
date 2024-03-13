@@ -1,5 +1,10 @@
 import { EventName, EventPayload } from "./events"
 
+export const PORTS = {
+  global: 'global',
+  experiment: (experimentName: string) => `experiment-${experimentName}`
+}
+
 type PortId = string
 
 class Port {

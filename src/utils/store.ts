@@ -1,7 +1,6 @@
 import { Experiment, RecuirsiveReadonly, Variant } from "../types"
 import { activeExperimentChanged, experimentRemoved, experimentsAdded, selectedVariantChanged, variantAdded } from "./events"
-import { observer } from "./observer"
-import { PORT_IDS } from "./portIds"
+import { PORTS, observer } from "./observer"
 import { saveExperiments } from "./savedExperiments"
 
 interface InternalStore {
@@ -61,13 +60,13 @@ export class Store {
     this._store.activeExperiment = newExperiment
 
     this._save()
-    observer.port(PORT_IDS.global).emit(activeExperimentChanged(oldExperiment, newExperiment))
+    observer.port(PORTS.global).emit(activeExperimentChanged(oldExperiment, newExperiment))
   }
 
   public pushExperiments(experiments: Experiment[]) {
     this._store.experiments.push(...experiments)
     this._save()
-    observer.port(PORT_IDS.global).emit(experimentsAdded(experiments))
+    observer.port(PORTS.global).emit(experimentsAdded(experiments))
   }
 
   public removeExperiment(experimentName: string) {
@@ -79,7 +78,7 @@ export class Store {
     this._store.experiments.splice(experimentIndex, 1)
 
     this._save()
-    observer.port(PORT_IDS.global).emit(experimentRemoved(experimentName))
+    observer.port(PORTS.global).emit(experimentRemoved(experimentName))
   }
 
   public pushVariants(experimentName: string, variant: Variant) {
@@ -92,7 +91,7 @@ export class Store {
     }
 
     this._save()
-    observer.port(PORT_IDS.experiment(experimentName)).emit(variantAdded(variant))
+    observer.port(PORTS.experiment(experimentName)).emit(variantAdded(variant))
   }
 
   public selectVariant(experimentName: string, variant: Variant) {
@@ -102,7 +101,7 @@ export class Store {
     this._store.experiments[experimentIndex].selectedVariant = variant
 
     this._save()
-    observer.port(PORT_IDS.experiment(experimentName)).emit(selectedVariantChanged(experimentName, variant))
+    observer.port(PORTS.experiment(experimentName)).emit(selectedVariantChanged(experimentName, variant))
   }
 }
 
