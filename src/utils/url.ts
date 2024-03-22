@@ -1,26 +1,31 @@
-import { Variant } from "../types"
+import { Variant } from '../types'
 
 export async function getCurrentTab() {
-  const [currentTab] = (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))
+  const [currentTab] = await chrome.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  })
   return currentTab
 }
 
 export async function updateUrl(modifyUrl: (currentUrl: string) => string) {
   const { id, url } = await getCurrentTab()
-  if(id && url) {
+  if (id && url) {
     chrome.tabs.update(id, { url: modifyUrl(url) })
   }
 }
 
 export async function getCurrentUrlVariantId() {
   const { url } = await getCurrentTab()
-  const urlVariantId = url?.match(/optimizely_x=[^&]+/)?.[0].replace('optimizely_x=', '')
+  const urlVariantId = url
+    ?.match(/optimizely_x=[^&]+/)?.[0]
+    .replace('optimizely_x=', '')
   return urlVariantId
 }
 
 export async function attemptUrlVariantUpdate(selectedVariant: Variant) {
   const currentUrlVariantId = await getCurrentUrlVariantId()
-  if(selectedVariant.id !== currentUrlVariantId) {
+  if (selectedVariant.id !== currentUrlVariantId) {
     updateUrl((currentUrl) => withVariantQuery(currentUrl, selectedVariant.id))
   }
 }
@@ -35,7 +40,7 @@ export function withVariantQuery(url: string, variantId: string) {
 
 export function clearVariantQuery(url: string) {
   const clearedUrl = replaceVariant(url, '')
-  if(clearedUrl.endsWith('?') || clearedUrl.endsWith('&')) {
+  if (clearedUrl.endsWith('?') || clearedUrl.endsWith('&')) {
     return clearedUrl.slice(0, -1)
   } else {
     return clearedUrl

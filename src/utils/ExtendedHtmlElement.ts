@@ -7,8 +7,10 @@ export class ExtendedHtmlElement extends HTMLElement {
   }
 
   protected createFromTemplate() {
-    const template = document.getElementById(this.templateId) as HTMLTemplateElement | null
-    if(!template) {
+    const template = document.getElementById(
+      this.templateId
+    ) as HTMLTemplateElement | null
+    if (!template) {
       throw new Error(`Cannot find template with id: ${this.templateId}`)
     }
     const content = template.content.cloneNode(true)
@@ -17,16 +19,16 @@ export class ExtendedHtmlElement extends HTMLElement {
 
   protected getHtmlElement<T extends keyof HTMLElementTagNameMap>(tagName: T) {
     const element = this.querySelector(tagName)
-    if(!element) {
+    if (!element) {
       throw new Error(`Cannot find element matching tag: ${tagName}`)
     }
-  
+
     return element
   }
 
   protected getBySelector<T extends HTMLElement>(selector: string) {
     const element = this.querySelector(selector)
-    if(!element) {
+    if (!element) {
       throw new Error(`Cannot find element matching selector: ${selector}`)
     }
 

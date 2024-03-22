@@ -5,9 +5,12 @@ import { EXPERIMENTS_MOCK } from '../mocks'
 describe('activate experiment', () => {
   let tester: Tester
 
-  const clickActivateButton = async (experimentName: string) => tester.waitForAndClick(SELECTORS.activateButton(experimentName))
-  const getActivateButtonText = async (experimentName: string) => tester.getTextContent(SELECTORS.activateButton(experimentName))
-  const isActivateButtonDisabled = async (experimentName: string) => tester.isButtonDisabled(SELECTORS.activateButton(experimentName))
+  const clickActivateButton = async (experimentName: string) =>
+    tester.waitForAndClick(SELECTORS.activateButton(experimentName))
+  const getActivateButtonText = async (experimentName: string) =>
+    tester.getTextContent(SELECTORS.activateButton(experimentName))
+  const isActivateButtonDisabled = async (experimentName: string) =>
+    tester.isButtonDisabled(SELECTORS.activateButton(experimentName))
 
   beforeEach(async () => {
     tester = await Tester.create()

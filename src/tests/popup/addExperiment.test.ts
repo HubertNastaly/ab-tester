@@ -4,13 +4,16 @@ import { SELECTORS, Tester } from '../utils'
 describe('add experiment', () => {
   let tester: Tester
 
-  const fillExperimentName = async (experimentName: string) => tester.waitForAndFill(SELECTORS.addExperimentInput, experimentName)
-  const getExperimentNameInputValue = async () => tester.getInputValue(SELECTORS.addExperimentInput)
+  const fillExperimentName = async (experimentName: string) =>
+    tester.waitForAndFill(SELECTORS.addExperimentInput, experimentName)
+  const getExperimentNameInputValue = async () =>
+    tester.getInputValue(SELECTORS.addExperimentInput)
   const clickAddExperiment = async () => {
     const addButton = await tester.getByText('Add')
     await addButton.click()
   }
-  const isAddButtonDisabled = async () => tester.isButtonDisabled(SELECTORS.addExperimentButton)
+  const isAddButtonDisabled = async () =>
+    tester.isButtonDisabled(SELECTORS.addExperimentButton)
 
   beforeEach(async () => {
     tester = await Tester.create()

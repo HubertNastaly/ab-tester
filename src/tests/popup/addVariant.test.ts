@@ -8,18 +8,23 @@ describe('add variant', () => {
   const experimentName = 'EX-123'
   const variant: Variant = {
     name: 'B',
-    id: '1234567890'
+    id: '1234567890',
   }
 
   const variantIdInputSelector = SELECTORS.variantIdInput(experimentName)
   const variantNameInputSelector = SELECTORS.variantNameInput(experimentName)
   const optionSelector = `${SELECTORS.variantSelect(experimentName)} option`
 
-  const fillVariantId = async (id: string) => tester.waitForAndFill(variantIdInputSelector, id)
-  const fillVariantName = async (name: string) => tester.waitForAndFill(variantNameInputSelector, name)
-  const isSubmitVariantDisabled = async () => tester.isButtonDisabled(SELECTORS.submitVariantButton(experimentName))
-  const clickOpenVariantForm = async () => tester.waitForAndClick(SELECTORS.addVariantButton(experimentName))
-  const clickSubmitVariantButton = async () => tester.waitForAndClick(SELECTORS.submitVariantButton(experimentName))
+  const fillVariantId = async (id: string) =>
+    tester.waitForAndFill(variantIdInputSelector, id)
+  const fillVariantName = async (name: string) =>
+    tester.waitForAndFill(variantNameInputSelector, name)
+  const isSubmitVariantDisabled = async () =>
+    tester.isButtonDisabled(SELECTORS.submitVariantButton(experimentName))
+  const clickOpenVariantForm = async () =>
+    tester.waitForAndClick(SELECTORS.addVariantButton(experimentName))
+  const clickSubmitVariantButton = async () =>
+    tester.waitForAndClick(SELECTORS.submitVariantButton(experimentName))
 
   beforeEach(async () => {
     tester = await Tester.create()
@@ -77,14 +82,16 @@ describe('add variant', () => {
 
     const anotherVariant: Variant = {
       name: 'C',
-      id: '0987654321'
+      id: '0987654321',
     }
     await clickOpenVariantForm()
     await fillVariantId(anotherVariant.id)
     await fillVariantName(anotherVariant.name)
     await clickSubmitVariantButton()
 
-    const optionLabels = await tester.page.$$eval(optionSelector, options => options.map(({ textContent }) => textContent))
+    const optionLabels = await tester.page.$$eval(optionSelector, (options) =>
+      options.map(({ textContent }) => textContent)
+    )
     expect(optionLabels.length).toBe(2)
     expect(optionLabels[0]).toBe('B (1234567890)')
     expect(optionLabels[1]).toBe('C (0987654321)')

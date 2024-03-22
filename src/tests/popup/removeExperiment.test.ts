@@ -6,7 +6,8 @@ describe('removeExperiment', () => {
   let tester: Tester
   const experiment = EXPERIMENTS_MOCK[1]
 
-  const clickRemoveExperiment = async () => tester.waitForAndClick(SELECTORS.removeExperimentButton(experiment.name))
+  const clickRemoveExperiment = async () =>
+    tester.waitForAndClick(SELECTORS.removeExperimentButton(experiment.name))
   const confirmRemoveExperiment = async () => {
     const confirmButton = await tester.getByText('Remove experiment')
     await confirmButton.click()

@@ -1,6 +1,6 @@
-import { Experiment } from "../types";
-import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
-import { store } from "../utils/store";
+import { Experiment } from '../types'
+import { ExtendedHtmlElement } from '../utils/ExtendedHtmlElement'
+import { store } from '../utils/store'
 
 export class RemoveExperiment extends ExtendedHtmlElement {
   public static readonly htmlTag = 'remove-experiment'
@@ -8,7 +8,7 @@ export class RemoveExperiment extends ExtendedHtmlElement {
 
   constructor(_experiment: Readonly<Experiment>) {
     super('remove-experiment-template')
-    this.experiment = _experiment;
+    this.experiment = _experiment
   }
 
   connectedCallback() {

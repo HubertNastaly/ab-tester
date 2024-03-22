@@ -1,4 +1,4 @@
-import { Experiment } from "../../types";
+import { Experiment } from '../../types'
 
 export const EXPERIMENT_ADDED_EVENT_NAME = 'experimentsAdded'
 
@@ -8,4 +8,6 @@ export interface ExperimentsAddedPayload {
 
 export type ExperimentsAddedEvent = CustomEvent<ExperimentsAddedPayload>
 export const experimentsAdded = (experiments: Experiment[]) =>
-  new CustomEvent<ExperimentsAddedPayload>(EXPERIMENT_ADDED_EVENT_NAME, { detail: { experiments }});
+  new CustomEvent<ExperimentsAddedPayload>(EXPERIMENT_ADDED_EVENT_NAME, {
+    detail: { experiments },
+  })

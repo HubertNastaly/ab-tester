@@ -1,7 +1,7 @@
-import { EventName, EventPayload } from "./events"
+import { EventName, EventPayload } from './events'
 
 export const PORTS = {
-  experiment: (experimentName: string) => `experiment-${experimentName}`
+  experiment: (experimentName: string) => `experiment-${experimentName}`,
 }
 
 type PortId = string
@@ -13,7 +13,10 @@ class Port {
     this.eventTarget = new EventTarget()
   }
 
-  public observe<T extends EventName>(eventName: T, callback: (payload: EventPayload[T]) => void): void {
+  public observe<T extends EventName>(
+    eventName: T,
+    callback: (payload: EventPayload[T]) => void
+  ): void {
     this.eventTarget.addEventListener(eventName, (event) => {
       callback((event as CustomEvent<EventPayload[T]>).detail)
     })
@@ -32,7 +35,7 @@ class Observer {
   }
 
   public port(portId: PortId): Port {
-    if(!this.ports[portId]) {
+    if (!this.ports[portId]) {
       this.ports[portId] = new Port()
     }
     return this.ports[portId]
@@ -42,7 +45,10 @@ class Observer {
     this.port('global').emit(event)
   }
 
-  public observe<T extends EventName>(eventName: T, callback: (payload: EventPayload[T]) => void): void {
+  public observe<T extends EventName>(
+    eventName: T,
+    callback: (payload: EventPayload[T]) => void
+  ): void {
     this.port('global').observe(eventName, callback)
   }
 }

@@ -1,12 +1,12 @@
-import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
-import { saveNewExperiment } from "../utils/savedExperiments";
-import { store } from "../utils/store";
+import { ExtendedHtmlElement } from '../utils/ExtendedHtmlElement'
+import { saveNewExperiment } from '../utils/savedExperiments'
+import { store } from '../utils/store'
 
 export class AddExperiment extends ExtendedHtmlElement {
   public static readonly htmlTag = 'add-experiment'
 
   constructor() {
-    super('add-experiment-template');
+    super('add-experiment-template')
   }
 
   async connectedCallback() {
@@ -22,9 +22,10 @@ export class AddExperiment extends ExtendedHtmlElement {
       const { value } = event.target as HTMLInputElement
       const addButton = this.getHtmlElement('button')
 
-      const shouldDisableAddButton = !value || store.read().experiments.some(({ name }) => name === value)
+      const shouldDisableAddButton =
+        !value || store.read().experiments.some(({ name }) => name === value)
 
-      if(shouldDisableAddButton) {
+      if (shouldDisableAddButton) {
         addButton.setAttribute('disabled', 'true')
       } else {
         addButton.removeAttribute('disabled')
@@ -43,10 +44,12 @@ export class AddExperiment extends ExtendedHtmlElement {
 
       await saveNewExperiment(experimentName)
 
-      store.pushExperiments([{
-        name: experimentName,
-        variants: [],
-      }])
+      store.pushExperiments([
+        {
+          name: experimentName,
+          variants: [],
+        },
+      ])
 
       input.value = ''
       this.getHtmlElement('button').setAttribute('disabled', 'true')
