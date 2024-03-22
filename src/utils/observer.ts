@@ -1,7 +1,6 @@
 import { EventName, EventPayload } from "./events"
 
 export const PORTS = {
-  global: 'global',
   experiment: (experimentName: string) => `experiment-${experimentName}`
 }
 
@@ -37,6 +36,14 @@ class Observer {
       this.ports[portId] = new Port()
     }
     return this.ports[portId]
+  }
+
+  public emit(event: CustomEvent) {
+    this.port('global').emit(event)
+  }
+
+  public observe<T extends EventName>(eventName: T, callback: (payload: EventPayload[T]) => void): void {
+    this.port('global').observe(eventName, callback)
   }
 }
 

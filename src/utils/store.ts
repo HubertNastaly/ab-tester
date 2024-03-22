@@ -60,13 +60,13 @@ export class Store {
     this._store.activeExperiment = newExperiment
 
     this._save()
-    observer.port(PORTS.global).emit(activeExperimentChanged(oldExperiment, newExperiment))
+    observer.emit(activeExperimentChanged(oldExperiment, newExperiment))
   }
 
   public pushExperiments(experiments: Experiment[]) {
     this._store.experiments.push(...experiments)
     this._save()
-    observer.port(PORTS.global).emit(experimentsAdded(experiments))
+    observer.emit(experimentsAdded(experiments))
   }
 
   public removeExperiment(experimentName: string) {
@@ -78,7 +78,7 @@ export class Store {
     this._store.experiments.splice(experimentIndex, 1)
 
     this._save()
-    observer.port(PORTS.global).emit(experimentRemoved(experimentName))
+    observer.emit(experimentRemoved(experimentName))
   }
 
   public pushVariants(experimentName: string, variant: Variant) {

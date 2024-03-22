@@ -1,6 +1,6 @@
 import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { EventName } from "../utils/events";
-import { PORTS, observer } from "../utils/observer";
+import { observer } from "../utils/observer";
 import { parseSavedExperiments, readSavedExperiments } from "../utils/savedExperiments";
 import { store } from "../utils/store";
 import { attemptUrlVariantUpdate, clearVariantQuery, updateUrl } from "../utils/url";
@@ -27,7 +27,7 @@ export class Experiments extends ExtendedHtmlElement {
   }
 
   private listenOnNewExperiments() {
-    observer.port(PORTS.global).observe(EventName.ExperimentsAdded, ({ experiments }) => {
+    observer.observe(EventName.ExperimentsAdded, ({ experiments }) => {
       experiments.forEach((experiment) => {
         this.appendChild(new ExperimentElement(experiment))
       })
@@ -35,14 +35,14 @@ export class Experiments extends ExtendedHtmlElement {
   }
 
   private listenOnExperimentRemoved() {
-    observer.port(PORTS.global).observe(EventName.ExperimentRemoved, ({ experimentName }) => {
+    observer.observe(EventName.ExperimentRemoved, ({ experimentName }) => {
       const experiment = this._getExperimentElement(experimentName)
       this.removeChild(experiment)
     })
   }
 
   private listenOnActiveExperimentChange() {
-    observer.port(PORTS.global).observe(EventName.ActiveExperimentChanged, async ({ oldExperiment, newExperiment }) => {
+    observer.observe(EventName.ActiveExperimentChanged, async ({ oldExperiment, newExperiment }) => {
       if(oldExperiment) {
         const oldExperimentElement = this._getExperimentElement(oldExperiment.name)
         oldExperimentElement.removeAttribute('active')
