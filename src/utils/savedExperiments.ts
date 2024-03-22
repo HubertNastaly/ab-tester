@@ -1,7 +1,8 @@
 // saved experiments schema: $active=EX-NAME_VARIANT-ID;EX-NAME-1:VARIANT-B_VARIANT-B-ID,VARIANT-C_VARIANT-C-ID;EX-NAME-2:...
 
-import { SAVED_EXPERIMENTS_KEY } from '../constants';
 import { Experiment, Variant } from '../types';
+
+const SAVED_EXPERIMENTS_KEY = 'saved_experiments'
 
 const EXPERIMENTS_SEPARATOR = ';';
 const EXPERIMENTS_VARIANTS_SEPARATOR = ':';
