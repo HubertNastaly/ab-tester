@@ -6,7 +6,7 @@ export class RemoveExperiment extends ExtendedHtmlElement {
   private readonly experiment: Experiment
 
   constructor(_experiment: Readonly<Experiment>) {
-    super('remove-experiment')
+    super('remove-experiment-template')
     this.experiment = _experiment;
   }
 
