@@ -5,11 +5,11 @@ import { Experiments } from './experiments'
 import { AddVariant } from './addVariant'
 import { RemoveExperiment } from './removeExperiment'
 
-customElements.define('custom-experiments', Experiments)
-customElements.define('custom-experiment', ExperimentElement)
-customElements.define('add-experiment', AddExperiment)
-customElements.define('add-variant', AddVariant)
-customElements.define('remove-experiment', RemoveExperiment)
+customElements.define(Experiments.htmlTag, Experiments)
+customElements.define(ExperimentElement.htmlTag, ExperimentElement)
+customElements.define(AddExperiment.htmlTag, AddExperiment)
+customElements.define(AddVariant.htmlTag, AddVariant)
+customElements.define(RemoveExperiment.htmlTag, RemoveExperiment)
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <h2>🧪 AB Tester</h2>

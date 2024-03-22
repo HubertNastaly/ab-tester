@@ -3,6 +3,8 @@ import { saveNewExperiment } from "../utils/savedExperiments";
 import { store } from "../utils/store";
 
 export class AddExperiment extends ExtendedHtmlElement {
+  public static readonly htmlTag = 'add-experiment'
+
   constructor() {
     super('add-experiment-template');
   }

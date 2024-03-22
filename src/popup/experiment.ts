@@ -9,6 +9,7 @@ import { AddVariant } from "./addVariant";
 import { RemoveExperiment } from "./removeExperiment";
 
 export class ExperimentElement extends ExtendedHtmlElement {
+  public static readonly htmlTag = 'custom-experiment'
   private readonly experiment: Experiment
   private isActive?: boolean
 
@@ -104,7 +105,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
     const plusButton = this.getBySelector<HTMLButtonElement>('.addVariant')
     plusButton.addEventListener('click', async () => {
       const column = this.getBySelector('.column')
-      const addVariantForm = this.querySelector('add-variant')
+      const addVariantForm = this.querySelector(AddVariant.htmlTag)
       if(addVariantForm) {
         column.removeChild(addVariantForm)
       } else {
@@ -117,7 +118,7 @@ export class ExperimentElement extends ExtendedHtmlElement {
     const removeButton = this.getBySelector<HTMLButtonElement>('.removeExperiment')
     removeButton.addEventListener('click', async () => {
       const column = this.getBySelector('.column')
-      const removeExperimentForm = this.querySelector('remove-experiment')
+      const removeExperimentForm = this.querySelector(RemoveExperiment.htmlTag)
       if(removeExperimentForm) {
         column.removeChild(removeExperimentForm)
       } else {

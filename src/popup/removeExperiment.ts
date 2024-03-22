@@ -3,6 +3,7 @@ import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { store } from "../utils/store";
 
 export class RemoveExperiment extends ExtendedHtmlElement {
+  public static readonly htmlTag = 'remove-experiment'
   private readonly experiment: Experiment
 
   constructor(_experiment: Readonly<Experiment>) {

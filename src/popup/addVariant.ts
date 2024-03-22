@@ -3,6 +3,7 @@ import { ExtendedHtmlElement } from "../utils/ExtendedHtmlElement";
 import { store } from "../utils/store";
 
 export class AddVariant extends ExtendedHtmlElement {
+  public static readonly htmlTag = 'add-variant'
   private readonly experiment: Experiment
 
   constructor(_experiment: Experiment) {

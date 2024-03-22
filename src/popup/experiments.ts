@@ -7,6 +7,8 @@ import { attemptUrlVariantUpdate, clearVariantQuery, updateUrl } from "../utils/
 import { ExperimentElement } from "./experiment";
 
 export class Experiments extends ExtendedHtmlElement {
+  public static readonly htmlTag = 'custom-experiments'
+
   constructor() {
     super('experiments-template');
     this.listenOnNewExperiments()
