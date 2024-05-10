@@ -1,8 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "AB Tester",
+  "name": "Variant Picker",
   "description": "Browser Extension to manage active A/B tests on Stepstone websites",
   "version": "1.0",
+  "icons": {
+    "128": "icon.png"
+  },
   "action": {
     "default_popup": "index.html"
   },

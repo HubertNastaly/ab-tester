@@ -12,7 +12,7 @@ customElements.define(AddVariant.htmlTag, AddVariant)
 customElements.define(RemoveExperiment.htmlTag, RemoveExperiment)
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <h2>🧪 AB Tester</h2>
+  <h2>🧪 Variant Picker</h2>
   <custom-experiments></custom-experiments>
   <add-experiment />
 `
